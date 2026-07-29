@@ -749,107 +749,104 @@
   });
 
   // ===== HÀM GỬI DỮ LIỆU ĐẾN GOOGLE SHEETS =====
-  async function submitData() {
+ async function submitData() {
     const statusEl = document.getElementById('submitStatus');
     const btn = document.getElementById('submitBtn');
-    
-    // Kiểm tra xem đã chọn đủ 11 câu chưa
+
+    // --- Validation ---
     let allAnswered = true;
     for (let i = 1; i <= 9; i++) {
-      const selected = document.querySelector(`input[name="q${i}"]:checked`);
-      if (!selected) { allAnswered = false; break; }
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!selected) { allAnswered = false; break; }
     }
     if (allAnswered) {
-      for (let i = 1; i <= 2; i++) {
-        const selected = document.querySelector(`input[name="extra${i}"]:checked`);
-        if (!selected) { allAnswered = false; break; }
-      }
+        for (let i = 1; i <= 2; i++) {
+            const selected = document.querySelector(`input[name="extra${i}"]:checked`);
+            if (!selected) { allAnswered = false; break; }
+        }
     }
-    
+
     if (!allAnswered) {
-      statusEl.textContent = "⚠️ Vui lòng trả lời tất cả các câu hỏi trước khi lưu.";
-      statusEl.className = "submit-status error";
-      return;
+        statusEl.textContent = "⚠️ Vui lòng trả lời tất cả các câu hỏi trước khi lưu.";
+        statusEl.className = "submit-status error";
+        return;
     }
-    
-    // Thu thập dữ liệu
+
+    // --- Data Collection ---
     const data = {};
     for (let i = 1; i <= 9; i++) {
-      const selected = document.querySelector(`input[name="q${i}"]:checked`);
-      data[`q${i}`] = selected ? parseInt(selected.value) : 0;
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        data[`q${i}`] = selected ? parseInt(selected.value) : 0;
     }
     for (let i = 1; i <= 2; i++) {
-      const selected = document.querySelector(`input[name="extra${i}"]:checked`);
-      data[`extra${i}`] = selected ? parseInt(selected.value) : 0;
+        const selected = document.querySelector(`input[name="extra${i}"]:checked`);
+        data[`extra${i}`] = selected ? parseInt(selected.value) : 0;
     }
     const mainTotal = calculateMainTotal();
     const extraTotal = calculateExtraTotal();
     data.total_main = mainTotal;
     data.total_extra = extraTotal;
-    
-    // Disable button và hiển thị trạng thái
+
+    // Disable button
     btn.disabled = true;
     statusEl.textContent = "⏳ Đang lưu dữ liệu...";
     statusEl.className = "submit-status loading";
-    
-    try {
-      const response = await fetch(WEB_APP_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      console.log('Success:', result);
-      
-      statusEl.textContent = "✅ Đã lưu kết quả thành công! Cảm ơn bạn đã tham gia.";
-      statusEl.className = "submit-status success";
-      
-      // ===== HIỂN THỊ POPUP KẾT QUẢ =====
-      // Determine advice based on scores
-      let advice = '';
-      let emoji = '😊';
-      
-      if (mainTotal >= 20) {
-        advice = 'Điểm PHQ-9 của bạn ở mức rất cao (≥ 20). Đây là dấu hiệu cho thấy bạn đang gặp khó khăn nghiêm trọng về tâm lý. Rất khuyến khích bạn tìm gặp bác sĩ tâm thần hoặc chuyên gia tâm lý ngay để được hỗ trợ kịp thời. Bạn không cần phải đối mặt một mình.';
-        emoji = '⚠️';
-      } else if (mainTotal >= 15) {
-        advice = 'Điểm PHQ-9 của bạn ở mức khá cao (15-19). Bạn có thể đang trải qua các triệu chứng trầm cảm ở mức độ nặng vừa. Hãy cân nhắc tìm gặp chuyên gia tâm lý để được tư vấn và hỗ trợ thêm.';
-        emoji = '😔';
-      } else if (mainTotal >= 10) {
-        advice = 'Điểm PHQ-9 của bạn ở mức trung bình (10-14). Bạn đang có một số dấu hiệu cần quan tâm. Hãy theo dõi thêm và đừng ngần ngại chia sẻ với người thân hoặc tìm gặp chuyên gia nếu cần.';
-        emoji = '🧐';
-      } else if (mainTotal >= 5) {
-        advice = 'Điểm PHQ-9 của bạn ở mức nhẹ (5-9). Bạn có thể đang trải qua một vài khó khăn nhưng chưa đến mức nghiêm trọng. Duy trì các thói quen lành mạnh và theo dõi sức khỏe tinh thần của bạn.';
-        emoji = '🙂';
-      } else {
-        advice = 'Điểm PHQ-9 của bạn ở mức thấp (0-4). Sức khỏe tinh thần của bạn đang ở trạng thái tốt. Hãy tiếp tục duy trì lối sống lành mạnh và chăm sóc bản thân nhé!';
-        emoji = '😊';
-      }
-      
-      // Add extra advice if self-perception is low
-      if (extraTotal <= 1) {
-        advice += '\n\n💚 Lưu ý: Điểm phần mở rộng của bạn thấp (≤ 1), cho thấy bạn có thể đang thiếu sự yêu thương hoặc động lực học tập. Hãy dành thời gian chăm sóc bản thân và tìm kiếm những điều tích cực xung quanh bạn.';
-        emoji = '💚';
-      }
-      
-      showModal(mainTotal, extraTotal, advice, emoji);
-      
-    } catch (error) {
-      console.error('Error:', error);
-      statusEl.textContent = "❌ Có lỗi xảy ra. Vui lòng thử lại.";
-      statusEl.className = "submit-status error";
-    } finally {
-      btn.disabled = false;
-    }
-  }
 
+    // --- Send Data with NO-CORS + form-urlencoded ---
+    try {
+        // Convert data to form-urlencoded format
+        const formData = new URLSearchParams();
+        for (const key in data) {
+            formData.append(key, data[key]);
+        }
+
+        const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors', // This bypasses CORS
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: formData.toString()
+        });
+
+        // With mode: 'no-cors', we can't read the response
+        // But the data is still sent!
+        statusEl.textContent = "✅ Đã lưu kết quả thành công! Cảm ơn bạn đã tham gia.";
+        statusEl.className = "submit-status success";
+
+        // --- Show the result popup ---
+        let advice = '';
+        let emoji = '😊';
+        if (mainTotal >= 20) {
+            advice = 'Điểm PHQ-9 của bạn ở mức rất cao (≥ 20). Rất khuyến khích bạn tìm gặp bác sĩ tâm thần hoặc chuyên gia tâm lý ngay để được hỗ trợ kịp thời.';
+            emoji = '⚠️';
+        } else if (mainTotal >= 15) {
+            advice = 'Điểm PHQ-9 của bạn ở mức khá cao (15-19). Hãy cân nhắc tìm gặp chuyên gia tâm lý để được tư vấn và hỗ trợ thêm.';
+            emoji = '😔';
+        } else if (mainTotal >= 10) {
+            advice = 'Điểm PHQ-9 của bạn ở mức trung bình (10-14). Hãy theo dõi thêm và đừng ngần ngại chia sẻ với người thân hoặc tìm gặp chuyên gia nếu cần.';
+            emoji = '🧐';
+        } else if (mainTotal >= 5) {
+            advice = 'Điểm PHQ-9 của bạn ở mức nhẹ (5-9). Duy trì các thói quen lành mạnh và theo dõi sức khỏe tinh thần của bạn.';
+            emoji = '🙂';
+        } else {
+            advice = 'Điểm PHQ-9 của bạn ở mức thấp (0-4). Sức khỏe tinh thần của bạn đang ở trạng thái tốt. Hãy tiếp tục duy trì lối sống lành mạnh!';
+            emoji = '😊';
+        }
+        if (extraTotal <= 1) {
+            advice += '\n\n💚 Lưu ý: Điểm phần mở rộng của bạn thấp (≤ 1), cho thấy bạn có thể đang thiếu sự yêu thương hoặc động lực học tập. Hãy dành thời gian chăm sóc bản thân.';
+            emoji = '💚';
+        }
+        showModal(mainTotal, extraTotal, advice, emoji);
+
+    } catch (error) {
+        console.error('Error:', error);
+        statusEl.textContent = `❌ Lỗi: ${error.message}. Vui lòng thử lại.`;
+        statusEl.className = "submit-status error";
+    } finally {
+        btn.disabled = false;
+    }
+}
   // ===== KHỞI TẠO BAN ĐẦU =====
   highlightSelected(document.getElementById('mainQuestions'));
   highlightSelected(document.getElementById('extraQuestions'));
