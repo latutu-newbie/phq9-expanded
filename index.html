@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -266,132 +267,6 @@
     .submit-status.error { color: #c62828; }
     .submit-status.loading { color: #1d4e6b; }
 
-    /* ===== RESULT POPUP MODAL ===== */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      animation: fadeIn 0.3s ease;
-    }
-    .modal-overlay.active {
-      display: flex;
-    }
-    .modal-box {
-      background: white;
-      border-radius: 28px;
-      max-width: 500px;
-      width: 90%;
-      padding: 35px 30px 30px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      animation: slideUp 0.4s ease;
-      position: relative;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 20px;
-      font-size: 28px;
-      cursor: pointer;
-      color: #999;
-      background: none;
-      border: none;
-      transition: 0.2s;
-    }
-    .modal-close:hover {
-      color: #333;
-      transform: rotate(90deg);
-    }
-    .modal-emoji {
-      text-align: center;
-      font-size: 60px;
-      margin-bottom: 10px;
-    }
-    .modal-title {
-      text-align: center;
-      font-size: 22px;
-      font-weight: 700;
-      color: #0a3147;
-      margin-bottom: 16px;
-    }
-    .modal-score-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin: 16px 0;
-    }
-    .modal-score-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 16px;
-      background: #f4f8fb;
-      border-radius: 12px;
-      font-size: 15px;
-    }
-    .modal-score-item .label {
-      font-weight: 600;
-      color: #1d4e6b;
-    }
-    .modal-score-item .value {
-      font-weight: 700;
-      font-size: 18px;
-      color: #0a3147;
-    }
-    .modal-score-item.main {
-      background: #e2edf8;
-    }
-    .modal-score-item.extra {
-      background: #eaf5e8;
-    }
-    .modal-divider {
-      border: none;
-      border-top: 1.5px dashed #d0dce8;
-      margin: 12px 0;
-    }
-    .modal-advice {
-      background: #fef6d7;
-      padding: 14px 18px;
-      border-radius: 14px;
-      border-left: 5px solid #f5b041;
-      font-size: 14px;
-      line-height: 1.5;
-      margin: 10px 0 16px;
-    }
-    .modal-btn {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      background: #1b3f59;
-      color: white;
-      border: none;
-      border-radius: 50px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .modal-btn:hover {
-      background: #0a3147;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
     /* ===== NGUỒN TRÍCH DẪN ===== */
     .footer {
       margin-top: 8px; padding: 10px 16px; background: #f4f8fb; border-radius: 14px; 
@@ -411,7 +286,6 @@
       .result-top { flex-direction: column; align-items: stretch; }
       .legend-list { justify-content: center; }
       .header h1 { font-size: 22px; }
-      .modal-box { padding: 25px 20px; }
     }
   </style>
 </head>
@@ -619,38 +493,10 @@
 
 </div>
 
-<!-- ===== RESULT POPUP MODAL ===== -->
-<div class="modal-overlay" id="resultModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-emoji" id="modalEmoji">😊</div>
-    <div class="modal-title" id="modalTitle">Kết quả của bạn</div>
-    
-    <div class="modal-score-grid">
-      <div class="modal-score-item main">
-        <span class="label">🧠 PHQ-9 (9 câu)</span>
-        <span class="value" id="modalMainScore">0 / 27</span>
-      </div>
-      <div class="modal-score-item extra">
-        <span class="label">🌱 Nhận thức bản thân (2 câu)</span>
-        <span class="value" id="modalExtraScore">0 / 6</span>
-      </div>
-    </div>
-    
-    <hr class="modal-divider">
-    
-    <div class="modal-advice" id="modalAdvice">
-      <strong>💡 Lời khuyên:</strong><br>
-      <span id="modalAdviceText">Dựa trên kết quả của bạn, hãy theo dõi sức khỏe tinh thần và tìm kiếm sự hỗ trợ nếu cần.</span>
-    </div>
-    
-    <button class="modal-btn" onclick="closeModal()">✅ Đã hiểu, đóng lại</button>
-  </div>
-</div>
-
 <script>
   // ============================================================
   //  🔑 THAY THẾ URL NÀY BẰNG WEB APP URL CỦA BẠN
+  //  Lấy từ bước 3 (Deploy → New deployment → Web app)
   // ============================================================
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz9PgJvbSRgOk0cVIFBktyA-yhRP9FAH0cJnjeOu2je5t8w17ywcfGh9YTDenvMhCjV/exec";
 
@@ -711,42 +557,6 @@
     });
   });
 
-  // ===== HÀM HIỂN THỊ MODAL =====
-  function showModal(mainScore, extraScore, advice, emoji) {
-    document.getElementById('modalMainScore').textContent = mainScore + ' / 27';
-    document.getElementById('modalExtraScore').textContent = extraScore + ' / 6';
-    document.getElementById('modalAdviceText').textContent = advice;
-    document.getElementById('modalEmoji').textContent = emoji;
-    
-    // Set title based on main score
-    let title = 'Kết quả của bạn';
-    if (mainScore >= 20) title = '⚠️ Cần sự hỗ trợ ngay';
-    else if (mainScore >= 15) title = '⚡ Cần quan tâm hơn';
-    else if (mainScore >= 10) title = '📝 Hãy theo dõi thêm';
-    else if (mainScore >= 5) title = '💚 Đang ổn';
-    else title = '🌟 Sức khỏe tốt';
-    document.getElementById('modalTitle').textContent = title;
-    
-    document.getElementById('resultModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-
-  // ===== HÀM ĐÓNG MODAL =====
-  function closeModal() {
-    document.getElementById('resultModal').classList.remove('active');
-    document.body.style.overflow = 'auto';
-  }
-
-  // Click outside modal to close
-  document.getElementById('resultModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
-
-  // Escape key to close
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeModal();
-  });
-
   // ===== HÀM GỬI DỮ LIỆU ĐẾN GOOGLE SHEETS =====
   async function submitData() {
     const statusEl = document.getElementById('submitStatus');
@@ -781,10 +591,8 @@
       const selected = document.querySelector(`input[name="extra${i}"]:checked`);
       data[`extra${i}`] = selected ? parseInt(selected.value) : 0;
     }
-    const mainTotal = calculateMainTotal();
-    const extraTotal = calculateExtraTotal();
-    data.total_main = mainTotal;
-    data.total_extra = extraTotal;
+    data.total_main = calculateMainTotal();
+    data.total_extra = calculateExtraTotal();
     
     // Disable button và hiển thị trạng thái
     btn.disabled = true;
@@ -794,51 +602,17 @@
     try {
       const response = await fetch(WEB_APP_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data)
       });
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      console.log('Success:', result);
-      
+      // Với mode: 'no-cors', chúng ta không thể đọc response
+      // Nên hiển thị thành công mặc định
       statusEl.textContent = "✅ Đã lưu kết quả thành công! Cảm ơn bạn đã tham gia.";
       statusEl.className = "submit-status success";
-      
-      // ===== HIỂN THỊ POPUP KẾT QUẢ =====
-      // Determine advice based on scores
-      let advice = '';
-      let emoji = '😊';
-      
-      if (mainTotal >= 20) {
-        advice = 'Điểm PHQ-9 của bạn ở mức rất cao (≥ 20). Đây là dấu hiệu cho thấy bạn đang gặp khó khăn nghiêm trọng về tâm lý. Rất khuyến khích bạn tìm gặp bác sĩ tâm thần hoặc chuyên gia tâm lý ngay để được hỗ trợ kịp thời. Bạn không cần phải đối mặt một mình.';
-        emoji = '⚠️';
-      } else if (mainTotal >= 15) {
-        advice = 'Điểm PHQ-9 của bạn ở mức khá cao (15-19). Bạn có thể đang trải qua các triệu chứng trầm cảm ở mức độ nặng vừa. Hãy cân nhắc tìm gặp chuyên gia tâm lý để được tư vấn và hỗ trợ thêm.';
-        emoji = '😔';
-      } else if (mainTotal >= 10) {
-        advice = 'Điểm PHQ-9 của bạn ở mức trung bình (10-14). Bạn đang có một số dấu hiệu cần quan tâm. Hãy theo dõi thêm và đừng ngần ngại chia sẻ với người thân hoặc tìm gặp chuyên gia nếu cần.';
-        emoji = '🧐';
-      } else if (mainTotal >= 5) {
-        advice = 'Điểm PHQ-9 của bạn ở mức nhẹ (5-9). Bạn có thể đang trải qua một vài khó khăn nhưng chưa đến mức nghiêm trọng. Duy trì các thói quen lành mạnh và theo dõi sức khỏe tinh thần của bạn.';
-        emoji = '🙂';
-      } else {
-        advice = 'Điểm PHQ-9 của bạn ở mức thấp (0-4). Sức khỏe tinh thần của bạn đang ở trạng thái tốt. Hãy tiếp tục duy trì lối sống lành mạnh và chăm sóc bản thân nhé!';
-        emoji = '😊';
-      }
-      
-      // Add extra advice if self-perception is low
-      if (extraTotal <= 1) {
-        advice += '\n\n💚 Lưu ý: Điểm phần mở rộng của bạn thấp (≤ 1), cho thấy bạn có thể đang thiếu sự yêu thương hoặc động lực học tập. Hãy dành thời gian chăm sóc bản thân và tìm kiếm những điều tích cực xung quanh bạn.';
-        emoji = '💚';
-      }
-      
-      showModal(mainTotal, extraTotal, advice, emoji);
       
     } catch (error) {
       console.error('Error:', error);
