@@ -753,7 +753,7 @@
     const statusEl = document.getElementById('submitStatus');
     const btn = document.getElementById('submitBtn');
 
-    // --- Validation ---
+    // --- Validate all questions answered ---
     let allAnswered = true;
     for (let i = 1; i <= 9; i++) {
         const selected = document.querySelector(`input[name="q${i}"]:checked`);
@@ -772,7 +772,7 @@
         return;
     }
 
-    // --- Data Collection ---
+    // --- Collect data ---
     const data = {};
     for (let i = 1; i <= 9; i++) {
         const selected = document.querySelector(`input[name="q${i}"]:checked`);
@@ -782,70 +782,62 @@
         const selected = document.querySelector(`input[name="extra${i}"]:checked`);
         data[`extra${i}`] = selected ? parseInt(selected.value) : 0;
     }
-    const mainTotal = calculateMainTotal();
-    const extraTotal = calculateExtraTotal();
-    data.total_main = mainTotal;
-    data.total_extra = extraTotal;
+    data.total_main = calculateMainTotal();
+    data.total_extra = calculateExtraTotal();
 
-    // Disable button
+    // --- Send as JSON ---
     btn.disabled = true;
     statusEl.textContent = "⏳ Đang lưu dữ liệu...";
     statusEl.className = "submit-status loading";
 
-    // --- Send Data ---
     try {
-        // Use form-urlencoded format (most compatible)
-        const formData = new URLSearchParams();
-        for (const key in data) {
-            formData.append(key, data[key]);
-        }
-
         console.log("📤 Sending data:", data);
-        console.log("📤 Form data:", formData.toString());
 
         const response = await fetch(WEB_APP_URL, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json',
             },
-            body: formData.toString()
+            body: JSON.stringify(data)
         });
 
-        // With no-cors, we can't read the response
-        // But we know the data was sent!
-        console.log("✅ Data sent successfully!");
-        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("✅ Server response:", result);
+
         statusEl.textContent = "✅ Đã lưu kết quả thành công! Cảm ơn bạn đã tham gia.";
         statusEl.className = "submit-status success";
 
-        // --- Show the result popup ---
+        // --- Show results popup ---
         let advice = '';
         let emoji = '😊';
-        if (mainTotal >= 20) {
+        if (data.total_main >= 20) {
             advice = 'Điểm PHQ-9 của bạn ở mức rất cao (≥ 20). Rất khuyến khích bạn tìm gặp bác sĩ tâm thần hoặc chuyên gia tâm lý ngay để được hỗ trợ kịp thời.';
             emoji = '⚠️';
-        } else if (mainTotal >= 15) {
+        } else if (data.total_main >= 15) {
             advice = 'Điểm PHQ-9 của bạn ở mức khá cao (15-19). Hãy cân nhắc tìm gặp chuyên gia tâm lý để được tư vấn và hỗ trợ thêm.';
             emoji = '😔';
-        } else if (mainTotal >= 10) {
+        } else if (data.total_main >= 10) {
             advice = 'Điểm PHQ-9 của bạn ở mức trung bình (10-14). Hãy theo dõi thêm và đừng ngần ngại chia sẻ với người thân hoặc tìm gặp chuyên gia nếu cần.';
             emoji = '🧐';
-        } else if (mainTotal >= 5) {
+        } else if (data.total_main >= 5) {
             advice = 'Điểm PHQ-9 của bạn ở mức nhẹ (5-9). Duy trì các thói quen lành mạnh và theo dõi sức khỏe tinh thần của bạn.';
             emoji = '🙂';
         } else {
             advice = 'Điểm PHQ-9 của bạn ở mức thấp (0-4). Sức khỏe tinh thần của bạn đang ở trạng thái tốt. Hãy tiếp tục duy trì lối sống lành mạnh!';
             emoji = '😊';
         }
-        if (extraTotal <= 1) {
+        if (data.total_extra <= 1) {
             advice += '\n\n💚 Lưu ý: Điểm phần mở rộng của bạn thấp (≤ 1), cho thấy bạn có thể đang thiếu sự yêu thương hoặc động lực học tập. Hãy dành thời gian chăm sóc bản thân.';
             emoji = '💚';
         }
-        showModal(mainTotal, extraTotal, advice, emoji);
+        showModal(data.total_main, data.total_extra, advice, emoji);
 
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error("❌ Error:", error);
         statusEl.textContent = `❌ Lỗi: ${error.message}. Vui lòng thử lại.`;
         statusEl.className = "submit-status error";
     } finally {
